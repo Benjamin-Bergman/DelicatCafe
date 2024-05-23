@@ -1,0 +1,232 @@
+@startuml
+
+package app {
+    class EntryPoint {
+        + {static} void main(String[])
+    }
+
+    class SandwichShop {
+    + void runShop()
+    }
+
+    SandwichShop <-- EntryPoint
+}
+
+package io {
+    interface LineItem {
+        + String getName()
+        + double getPrice()
+        + List<LineItem> getSubItems()
+    }
+
+    class Receipt {
+        - List<LineItem> items
+        + Receipt(List<LineItem>)
+        + String toString()
+        + boolean saveTo(File)
+        + void processSale()
+    }
+
+    interface Inventoried {
+        + void consume(int)
+        + boolean isInStock()
+    }
+
+    interface InventoriedLineItem extends LineItem {
+        + Inventoried getInventoried()
+    }
+
+    interface InventoriedFile<T extends Inventoried> {
+        + List<T> getItems()
+    }
+
+    abstract class BaseInventoriedFile<T extends BaseInventoried<T>> implements InventoriedFile {
+        - List<T> items
+        + BaseInventoriedFile(File)
+        + List<T> getItems()
+        + {abstract} T readFromLine(String)
+        + {abstract} String convertToLine(T)
+    }
+
+    abstract BaseInventoried<T extends BaseInventoried<T>> implements Inventoried {
+        - BaseInventoriedFile<T> owner
+        - int amount
+        + void consume(int)
+        + boolean isInStock()
+    }
+
+    LineItem "1..*" o-- Receipt
+    BaseInventoried "0..*" *--o "1" BaseInventoriedFile
+    Inventoried <- InventoriedFile
+    Inventoried o-- InventoriedLineItem
+}
+
+package orders {
+    enum SandwichSize {
+        + FOUR_IN
+        + EIGHT_IN
+        + TWELVE_IN
+    }
+    class Sandwich <<io.LineItem>> {
+        - SandwichSize size
+        - boolean toasted
+        - Bread bread
+        - List<Topping> toppings
+        __
+        + Sandwich()
+        + SandwichSize getSize()
+        + void setSize(SandwichSize)
+        + boolean isToasted()
+        + void setIsToasted(boolean)
+        + Bread getBread()
+        + void setBread(Bread)
+        + List<Topping> getToppings()
+        + void addTopping(Topping)
+        + void removeTopping(Topping)
+        + double getPrice()
+        + List<LineItem> getSubItems()
+    }
+    class Order <<io.LineItem>> {
+        - List<Chips> chips
+        - List<Sandwich> sandwiches
+        - List<Drink> drinks
+        + void addDrink(Drink)
+        + List<Drink> getDrinks()
+        + void removeDrink(Drink)
+        + void addSandwich(Sandwich)
+        + List<Sandwich> getSandwiches()
+        + void removeSandwich(Sandwich)
+        + void addChips(Chips)
+        + List<Chips> getChips()
+        + void removeChips(Chips)
+        + String getName()
+        + double getPrice()
+        + List<LineItem> getSubItems()
+    }
+
+    package chips {
+        class ChipsType <<io.BaseInventoried>> {
+            - String name
+            - double price
+            ~ ChipsType(String, double)
+            + String getName()
+            + double getPrice()
+        }
+        class ChipsTypeFile <<io.BaseInventoriedFile>> {
+            + {abstract} {method} overrides
+        }
+        class Chips <<io.InventoriedLineItem>> {
+            - ChipsType type
+            + ChipsItem(ChipsType)
+            + List<LineItem> getSubItems()
+            + String getName()
+            + ChipsType getType()
+            + double getPrice()
+            + ChipsType getInventoried()
+        }
+
+        ChipsType "0..*" *--o "1" ChipsTypeFile
+    }
+
+    package bread {
+        class BreadType <<io.BaseInventoried>> {
+            - String name
+            ~ BreadType(String)
+            + String getName()
+        }
+        class BreadTypeFile <<io.BaseInventoriedFile>> {
+            + {abstract} {method} overrides
+        }
+        class Bread <<io.InventoriedLineItem>> {
+            - BreadType type
+            + Bread(BreadType)
+            + BreadType getType()
+            + void setType(BreadType)
+            + String getName()
+            + double getPrice()
+            + List<LineItem> getSubItems()
+            + BreadType getInventoried()
+        }
+
+        BreadType "0..*" *--o "1" BreadTypeFile
+    }
+
+    package drinks {
+        enum DrinkSize {
+            + SMALL
+            + MEDIUM
+            + LARGE
+        }
+        class DrinkType <<io.BaseInventoried>> {
+            - String name
+            - double[] prices
+            ~ DrinkType(String, double[])
+            + String getName()
+            + double getPrice(DrinkSize)
+        }
+        class DrinkTypeFile <<io.BaseInventoriedFile>> {
+            + {abstract} {method} overrides
+        }
+
+        class Drink <<io.InventoriedLineItem>> {
+            - DrinkSize size
+            - DrinkType type
+            + Drink()
+            + DrinkSize getSize()
+            + void setSize(DrinkSize)
+            + DrinkType getType()
+            + void setType(DrinkType)
+            + double getPrice()
+            + List<LineItem> getSubItems()
+            + DrinkType getInventoried()
+        }
+
+        DrinkType "0..*" *--o "1" DrinkTypeFile
+    }
+
+    package toppings {
+        class ToppingType <<io.BaseInventoried>> {
+            - String name
+            - String category
+            - double[] prices
+            ~ ToppingType(String, String, double[])
+            + String getName()
+            + String getCategory()
+            + double getPrice(SandwichSize)
+            + double getExtraPrice(SandwichSize)
+        }
+        class ToppingTypeFile <<io.BaseInventoriedFile>> {
+            + {abstract} {method} overrides
+        }
+        class Topping <<io.InventoriedLineItem>> {
+            - ToppingType type
+            - boolean extra
+            + Topping(ToppingType, boolean, double)
+            + ToppingType getType()
+            + void setType(ToppingType)
+            + boolean isExtra()
+            + void setIsExtra()
+            + String getName()
+            + double getPrice()
+            + List<LineItem> getSubItems()
+            + ToppingType getInventoried()
+        }
+
+        ToppingType "0..*" *--o "1" ToppingTypeFile
+    }
+
+    SandwichSize "1" o-- Sandwich
+    Bread "1" *-- Sandwich
+    DrinkSize "1" o-- Drink
+    DrinkType "1" o-- Drink
+    Topping "0..*" *-- Sandwich
+    ToppingType "1" o-- Topping
+    ChipsType "1" o-- Chips
+    BreadType "1" o-- Bread
+
+    Sandwich "0..*" *-- Order
+    Drink "0..*" *-- Order
+    Chips "0..*" *-- Order
+}
+
+@enduml
