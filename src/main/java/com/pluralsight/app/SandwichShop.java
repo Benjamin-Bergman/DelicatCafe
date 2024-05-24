@@ -303,11 +303,19 @@ public final class SandwichShop {
                 }
                 case 2 -> {
                     out.println("Choose a category:");
-                    var category = queryListCommand(scanner, out, toppings.getItems().stream().map(ToppingType::getCategory).distinct().toList());
-                    assert category != null : "toppings.getItems() must have values";
+                    var category = queryListCommand(scanner, out,
+                        toppings.getItems().stream()
+                            .filter(tp -> sandwich.getToppings().stream().noneMatch(st -> st.getType() == tp))
+                            .map(ToppingType::getCategory).distinct().toList());
+                    if (category == null) {
+                        out.println("No more toppings to add :(");
+                        continue;
+                    }
                     out.println("Choose a topping:");
                     var topping = queryListCommand(scanner, out,
-                        toppings.getItems().stream().filter(t -> t.getCategory().equals(category)).toList(),
+                        toppings.getItems().stream()
+                            .filter(tp -> sandwich.getToppings().stream().noneMatch(st -> st.getType() == tp))
+                            .filter(t -> t.getCategory().equals(category)).toList(),
                         tt -> "%s ($%.2f, $%.2f)".formatted(tt.getName(), tt.getPrice(sandwich.getSize()), tt.getExtraPrice(sandwich.getSize())));
                     assert topping != null : "toppings.getItems() must have values";
                     out.println("Would you like extra?");
