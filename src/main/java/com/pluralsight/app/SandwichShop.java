@@ -284,6 +284,51 @@ public final class SandwichShop {
     }
 
     private void runSandwichEditor(Scanner scanner, PrintStream out, SandwichItem sandwich) {
+        var receipt = new Receipt(sandwich);
+        while (true) {
+            out.println("Editing your sandwich:");
+            out.println(receipt);
+            out.println("""
+                1 - Toast
+                2 - Add Toppings
+                3 - Remove Toppings
+                4 - Done""");
 
+            var choice = queryCommand(scanner, out, List.of(1, 2, 3, 4));
+
+            switch (choice) {
+                case 1 -> {
+                    out.println("Would you like your sandwich toasted?");
+                    sandwich.setToasted(queryYN(scanner, out, sandwich.isToasted()));
+                }
+                case 2 -> {
+                    out.println("Choose a category:");
+                    var category = queryListCommand(scanner, out, toppings.getItems().stream().map(ToppingType::getCategory).distinct().toList());
+                    assert category != null : "toppings.getItems() must have values";
+                    out.println("Choose a topping:");
+                    var topping = queryListCommand(scanner, out,
+                        toppings.getItems().stream().filter(t -> t.getCategory().equals(category)).toList(),
+                        tt -> "%s ($%.2f, $%.2f)".formatted(tt.getName(), tt.getPrice(sandwich.getSize()), tt.getExtraPrice(sandwich.getSize())));
+                    assert topping != null : "toppings.getItems() must have values";
+                    out.println("Would you like extra?");
+                    var extra = queryYN(scanner, out, null);
+                    sandwich.addTopping(topping, false);
+                    if (extra)
+                        sandwich.addTopping(topping, true);
+                }
+                case 3 -> {
+                    out.println("Which topping do you want to remove?");
+                    var topping = queryListCommand(scanner, out, sandwich.getToppings(),
+                        tv -> "%s%s".formatted(tv.isExtra() ? "Extra " : "", tv.getType().getName()));
+                    if (topping == null)
+                        continue;
+                    sandwich.removeTopping(topping.getType(), topping.isExtra());
+                }
+                case 4 -> {
+                    return;
+                }
+                default -> throw new IllegalStateException("This case should not be reachable.");
+            }
+        }
     }
 }
