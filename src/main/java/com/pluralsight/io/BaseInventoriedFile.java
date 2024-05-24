@@ -37,7 +37,7 @@ public abstract class BaseInventoriedFile<T extends BaseInventoried> implements 
 
     @Override
     public List<T> getItems() {
-        return Collections.unmodifiableList(items);
+        return items.stream().filter(T::isInStock).toList();
     }
 
     private List<T> load() {

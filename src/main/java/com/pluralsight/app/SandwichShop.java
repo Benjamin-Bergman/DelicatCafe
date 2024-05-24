@@ -203,19 +203,30 @@ public final class SandwichShop {
                     var size = querySandwichSize(scanner, out);
                     assert size != null : "SandwichSize enum must have values";
                     var bread = queryBreadType(scanner, out);
-                    assert bread != null : "breads.getItems() must have values";
+                    if (bread == null) {
+                        out.println("Sorry, we appear to be out of bread right now. Please try again later.");
+                        continue;
+                    }
                     var sandwich = new SandwichItem(size, bread);
                     runSandwichEditor(scanner, out, sandwich);
                     order.addSandwich(sandwich);
                 }
                 case 2 -> {
                     var drink = queryDrinkType(scanner, out);
-                    assert drink != null : "drinks.getItems() must have values";
+                    if (drink == null)
+                        out.println("Sorry, we appear to be out of drinks right now. Please try again later.");
                     var size = queryDrinkSize(scanner, out);
                     assert size != null : "DrinkSize enum must have values";
                     order.addDrink(drink, size);
                 }
-                case 3 -> order.addExtra(queryExtra(scanner, out));
+                case 3 -> {
+                    var extra = queryExtra(scanner, out);
+                    if (extra == null) {
+                        out.println("Sorry, we appear to be out of extras right now. Please try again later.");
+                        continue;
+                    }
+                    order.addExtra(extra);
+                }
                 case 4 -> {
                     if (runCartView(scanner, out, order))
                         return;
@@ -330,7 +341,7 @@ public final class SandwichShop {
                             .filter(tp -> sandwich.getToppings().stream().noneMatch(st -> st.getType() == tp))
                             .filter(t -> t.getCategory().equals(category)).toList(),
                         tt -> formatTopping(tt, sandwich.getSize()));
-                    assert topping != null : "toppings.getItems() must have values";
+                    assert topping != null : "toppings.getItems() must have values after we just used it";
                     out.println("Would you like extra?");
                     var extra = queryYN(scanner, out, null);
                     sandwich.addTopping(topping, false);
