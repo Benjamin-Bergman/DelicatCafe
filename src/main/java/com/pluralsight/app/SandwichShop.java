@@ -12,6 +12,7 @@ import com.pluralsight.orders.extras.*;
 import com.pluralsight.orders.toppings.*;
 
 import java.io.*;
+import java.time.*;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
@@ -69,7 +70,7 @@ public final class SandwichShop {
             out.printf("%d - %s%n", i + 1, displaySelector.apply(option));
         }
         int choice = queryCommand(scanner, out, IntStream.rangeClosed(1, options.size()).boxed().toList());
-        return options.get(choice);
+        return options.get(choice - 1);
     }
 
     @SuppressWarnings({"MethodWithMoreThanThreeNegations", "BooleanMethodNameMustStartWithQuestion"})
@@ -95,6 +96,23 @@ public final class SandwichShop {
     private static DrinkSize queryDrinkSize(Scanner scanner, PrintStream out) {
         out.println("Enter the size:");
         return queryListCommand(scanner, out, List.of(DrinkSize.values()));
+    }
+
+    @SuppressWarnings("FeatureEnvy")
+    private static boolean runCheckOut(Iterator<String> scanner, PrintStream out, Receipt receipt) {
+        out.printf("Your total is: $%.2f%n", receipt.getPrice());
+        out.println("Are you sure you want to make this purchase?");
+        if (!queryYN(scanner, out, true))
+            return false;
+        var file = new File("receipts", "%tY%<tm%<td-%<tH%<tM%<tS.txt".formatted(LocalDateTime.now()));
+        if (!receipt.saveToFile(file)) {
+            out.println("There was an error processing your order. Please try again later.");
+            return false;
+        }
+
+        receipt.processSale();
+
+        return true;
     }
 
     /**
@@ -173,7 +191,10 @@ public final class SandwichShop {
                     order.addDrink(drink, size);
                 }
                 case 3 -> order.addExtra(queryExtra(scanner, out));
-                case 4 -> runCartView(scanner, out);
+                case 4 -> {
+                    if (runCartView(scanner, out, order))
+                        return;
+                }
                 case 5 -> {
                     if (order.getSandwiches().isEmpty() && order.getDrinks().isEmpty() && order.getExtras().isEmpty())
                         return;
@@ -187,8 +208,53 @@ public final class SandwichShop {
         }
     }
 
-    private void runCartView(Scanner scanner, PrintStream out) {
+    @SuppressWarnings("FeatureEnvy")
+    private boolean runCartView(Scanner scanner, PrintStream out, Order order) {
+        var receipt = new Receipt(order);
+        while (true) {
+            out.println(receipt);
 
+            out.println("""
+                1 - Modify Sandwich
+                2 - Remove Sandwich
+                3 - Remove Drink
+                4 - Remove Extra
+                5 - Check Out
+                6 - Exit Cart View""");
+
+            var choice = queryCommand(scanner, out, List.of(1, 2, 3, 4, 5, 6));
+
+            switch (choice) {
+                case 1 -> {
+                    out.println("Modify which sandwich?");
+                    var sandwich = queryListCommand(scanner, out, IntStream.rangeClosed(1, order.getSandwiches().size()).boxed().toList());
+                    runSandwichEditor(scanner, out, order.getSandwiches().get(sandwich));
+                    return false;
+                }
+                case 2 -> {
+                    out.println("Remove which sandwich?");
+                    var sandwich = queryListCommand(scanner, out, IntStream.rangeClosed(1, order.getSandwiches().size()).boxed().toList());
+                    order.removeSandwich(sandwich);
+                }
+                case 3 -> {
+                    out.println("Remove which drink?");
+                    var drink = queryListCommand(scanner, out, order.getDrinks(), dv -> "%s %s".formatted(dv.getSize(), dv.getType().getName()));
+                    order.removeDrink(drink.getType(), drink.getSize());
+                }
+                case 4 -> {
+                    out.println("Remove which extra?");
+                    var extra = queryListCommand(scanner, out, order.getExtras(), ExtraType::getName);
+                    order.removeExtra(extra);
+                }
+                case 5 -> {
+                    return runCheckOut(scanner, out, receipt);
+                }
+                case 6 -> {
+                    return false;
+                }
+                default -> throw new IllegalStateException("This case should not be reachable.");
+            }
+        }
     }
 
     private void runSandwichEditor(Scanner scanner, PrintStream out, SandwichItem sandwich) {

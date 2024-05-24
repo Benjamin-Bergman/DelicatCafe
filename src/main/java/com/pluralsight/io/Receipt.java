@@ -72,4 +72,11 @@ public final class Receipt {
                 inv.getInventoried().consume(1);
         });
     }
+
+    /**
+     * @return The total price on this receipt
+     */
+    public double getPrice() {
+        return recursiveFlatMap(item.getSubItems().stream()).mapToDouble(LineItem::getPrice).sum();
+    }
 }
