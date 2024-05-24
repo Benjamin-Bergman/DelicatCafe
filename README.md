@@ -29,6 +29,8 @@ Follow these steps to get your application running within IntelliJ IDEA:
 
 # Class Diagram
 
+![image](https://github.com/Benjamin-Bergman/DelicatCafe/assets/166551442/35ed9a47-632f-4324-bf9c-1bd2f3836f6a)
+
 # License
 
 [GPL 3](https://choosealicense.com/licenses/gpl-3.0/)
