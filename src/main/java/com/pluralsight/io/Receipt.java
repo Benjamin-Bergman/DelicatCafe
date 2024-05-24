@@ -31,8 +31,12 @@ public final class Receipt {
         var indent = 2 * depth;
         var width = ITEM_WIDTH - indent;
 
+        var totalPrice = item.getPrice() + subPrice;
+
         return Stream.concat(
-            Stream.of((" ".repeat(indent) + "%-" + width + "s%" + PRICE_WIDTH + ".2f").formatted(item.getName(), item.getPrice() + subPrice)),
+            Stream.of((" ".repeat(indent) + "%-" + width + "s%s").formatted(
+                item.getName(),
+                totalPrice == 0 ? "" : ("%" + PRICE_WIDTH + ".2f").formatted(totalPrice))),
             item.getSubItems().stream().flatMap(subItem -> processItem(subItem, depth + 1)));
     }
 
