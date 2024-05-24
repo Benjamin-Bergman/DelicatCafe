@@ -40,6 +40,14 @@ public final class SandwichShop {
         this.breads = breads;
         this.drinks = drinks;
         this.extras = extras;
+        if (toppings.getItems().isEmpty())
+            throw new IllegalArgumentException("The must be some toppings");
+        if (breads.getItems().isEmpty())
+            throw new IllegalArgumentException("The must be some breads");
+        if (drinks.getItems().isEmpty())
+            throw new IllegalArgumentException("The must be some drinks");
+        if (extras.getItems().isEmpty())
+            throw new IllegalArgumentException("The must be some extras");
     }
 
     private static int queryCommand(Scanner scanner, PrintStream out, Collection<Integer> valid) {
@@ -64,6 +72,11 @@ public final class SandwichShop {
     }
 
     private static <T> T queryListCommand(Scanner scanner, PrintStream out, List<? extends T> options, Function<? super T, String> displaySelector) {
+        if (options.isEmpty()) {
+            out.println("Nothing to choose");
+            return null;
+        }
+
         for (//noinspection ReassignedVariable
             int i = 0; i < options.size(); i++) {
             T option = options.get(i);
@@ -180,14 +193,18 @@ public final class SandwichShop {
             switch (input) {
                 case 1 -> {
                     var size = querySandwichSize(scanner, out);
+                    assert size != null : "SandwichSize enum must have values";
                     var bread = queryBreadType(scanner, out);
+                    assert bread != null : "breads.getItems() must have values";
                     var sandwich = new SandwichItem(size, bread);
                     runSandwichEditor(scanner, out, sandwich);
                     order.addSandwich(sandwich);
                 }
                 case 2 -> {
                     var drink = queryDrinkType(scanner, out);
+                    assert drink != null : "drinks.getItems() must have values";
                     var size = queryDrinkSize(scanner, out);
+                    assert size != null : "DrinkSize enum must have values";
                     order.addDrink(drink, size);
                 }
                 case 3 -> order.addExtra(queryExtra(scanner, out));
@@ -228,22 +245,30 @@ public final class SandwichShop {
                 case 1 -> {
                     out.println("Modify which sandwich?");
                     var sandwich = queryListCommand(scanner, out, IntStream.rangeClosed(1, order.getSandwiches().size()).boxed().toList());
+                    if (sandwich == null)
+                        continue;
                     runSandwichEditor(scanner, out, order.getSandwiches().get(sandwich - 1));
                     return false;
                 }
                 case 2 -> {
                     out.println("Remove which sandwich?");
                     var sandwich = queryListCommand(scanner, out, IntStream.rangeClosed(1, order.getSandwiches().size()).boxed().toList());
+                    if (sandwich == null)
+                        continue;
                     order.removeSandwich(sandwich - 1);
                 }
                 case 3 -> {
                     out.println("Remove which drink?");
                     var drink = queryListCommand(scanner, out, order.getDrinks(), dv -> "%s %s".formatted(dv.getSize(), dv.getType().getName()));
+                    if (drink == null)
+                        continue;
                     order.removeDrink(drink.getType(), drink.getSize());
                 }
                 case 4 -> {
                     out.println("Remove which extra?");
                     var extra = queryListCommand(scanner, out, order.getExtras(), ExtraType::getName);
+                    if (extra == null)
+                        continue;
                     order.removeExtra(extra);
                 }
                 case 5 -> {
