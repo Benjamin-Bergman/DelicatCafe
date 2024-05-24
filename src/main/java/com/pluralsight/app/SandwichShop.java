@@ -272,7 +272,8 @@ public final class SandwichShop {
                     order.removeExtra(extra);
                 }
                 case 5 -> {
-                    return runCheckOut(scanner, out, receipt);
+                    if (runCheckOut(scanner, out, receipt))
+                        return true;
                 }
                 case 6 -> {
                     return false;

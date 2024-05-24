@@ -12,7 +12,7 @@ import java.util.stream.*;
  * Represents a receipt for a sale.
  */
 public final class Receipt {
-    private static final int ITEM_WIDTH = 20;
+    private static final int ITEM_WIDTH = 40;
     private static final int PRICE_WIDTH = 6;
 
     private final LineItem item;
@@ -37,14 +37,16 @@ public final class Receipt {
     }
 
     private static Stream<LineItem> recursiveFlatMap(Stream<? extends LineItem> items) {
-        return Stream.concat(items, items.map(LineItem::getSubItems).map(List::stream).flatMap(Receipt::recursiveFlatMap));
+        var list = items.toList();
+        return Stream.concat(list.stream(), list.stream().map(LineItem::getSubItems).map(List::stream).flatMap(Receipt::recursiveFlatMap));
     }
 
     @Override
     public String toString() {
         return item.getSubItems().stream()
-            .flatMap(subItem -> processItem(subItem, 0))
-            .collect(Collectors.joining(System.lineSeparator()));
+                   .flatMap(subItem -> processItem(subItem, 0))
+                   .collect(Collectors.joining(System.lineSeparator()))
+               + "%n%n$%.2f".formatted(getPrice());
     }
 
     /**
