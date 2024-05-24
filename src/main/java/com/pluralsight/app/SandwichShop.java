@@ -331,6 +331,8 @@ public final class SandwichShop {
                     if (topping == null)
                         continue;
                     sandwich.removeTopping(topping.getType(), topping.isExtra());
+                    if (!topping.isExtra() && sandwich.getToppings().stream().anyMatch(tp -> tp.getType() == topping.getType() && tp.isExtra()))
+                        sandwich.removeTopping(topping.getType(), true);
                 }
                 case 4 -> {
                     return;
