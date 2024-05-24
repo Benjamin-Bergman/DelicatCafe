@@ -47,10 +47,7 @@ public final class Receipt {
 
     @Override
     public String toString() {
-        return item.getSubItems().stream()
-                   .flatMap(subItem -> processItem(subItem, 0))
-                   .collect(Collectors.joining(System.lineSeparator()))
-               + "%n%n$%.2f".formatted(getPrice());
+        return processItem(item, 0).collect(Collectors.joining(System.lineSeparator()));
     }
 
     /**
