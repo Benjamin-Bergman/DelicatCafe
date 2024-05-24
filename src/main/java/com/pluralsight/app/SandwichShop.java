@@ -228,13 +228,13 @@ public final class SandwichShop {
                 case 1 -> {
                     out.println("Modify which sandwich?");
                     var sandwich = queryListCommand(scanner, out, IntStream.rangeClosed(1, order.getSandwiches().size()).boxed().toList());
-                    runSandwichEditor(scanner, out, order.getSandwiches().get(sandwich));
+                    runSandwichEditor(scanner, out, order.getSandwiches().get(sandwich - 1));
                     return false;
                 }
                 case 2 -> {
                     out.println("Remove which sandwich?");
                     var sandwich = queryListCommand(scanner, out, IntStream.rangeClosed(1, order.getSandwiches().size()).boxed().toList());
-                    order.removeSandwich(sandwich);
+                    order.removeSandwich(sandwich - 1);
                 }
                 case 3 -> {
                     out.println("Remove which drink?");
