@@ -52,21 +52,12 @@ public abstract class BaseInventoriedFile<T extends BaseInventoried> implements 
         return obj;
     }
 
-    private String writeLine(T item) {
-        return "%d|%s%n".formatted(item.getAmount(), convertToLine(item));
-    }
-
     void save() {
         try (FileWriter fw = new FileWriter(file);
              BufferedWriter bw = new BufferedWriter(fw)) {
-            items.stream().map(this::writeLine).forEach(str -> {
-                try {
-                    bw.write(str);
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-            });
-        } catch (IOException | UncheckedIOException e) {
+            for (T item : items)
+                bw.write("%d|%s%n".formatted(item.getAmount(), convertToLine(item)));
+        } catch (IOException e) {
             System.err.println("Error: Could not update inventory file \"" + file.getPath() + "\"!");
             e.printStackTrace(System.err);
         }
