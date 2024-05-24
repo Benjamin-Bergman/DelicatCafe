@@ -35,6 +35,7 @@ public final class SandwichShop {
      * @param drinks   The file for drinks
      * @param extras   The file for extras
      */
+    @SuppressWarnings("FeatureEnvy")
     public SandwichShop(InventoriedFile<ToppingType> toppings, InventoriedFile<BreadType> breads, InventoriedFile<DrinkType> drinks, InventoriedFile<ExtraType> extras) {
         this.toppings = toppings;
         this.breads = breads;
@@ -128,6 +129,7 @@ public final class SandwichShop {
         return true;
     }
 
+    @SuppressWarnings("FeatureEnvy")
     private static String formatTopping(ToppingType type, SandwichSize size) {
         if (type.getPrice(size) == 0 && type.getExtraPrice(size) == 0)
             return type.getName();
@@ -181,7 +183,7 @@ public final class SandwichShop {
         return queryListCommand(scanner, out, extras.getItems(), et -> "%s ($%.2f)".formatted(et.getName(), et.getPrice()));
     }
 
-    @SuppressWarnings({"FeatureEnvy", "OverlyComplexMethod"})
+    @SuppressWarnings({"FeatureEnvy", "OverlyComplexMethod", "MethodWithMoreThanThreeNegations", "OverlyLongMethod"})
     private void runOrder(Scanner scanner, PrintStream out) {
         Order order = new Order();
         while (true) {
@@ -231,7 +233,7 @@ public final class SandwichShop {
         }
     }
 
-    @SuppressWarnings("FeatureEnvy")
+    @SuppressWarnings({"FeatureEnvy", "OverlyComplexMethod", "OverlyLongMethod"})
     private boolean runCartView(Scanner scanner, PrintStream out, Order order) {
         var receipt = new Receipt(order);
         while (true) {

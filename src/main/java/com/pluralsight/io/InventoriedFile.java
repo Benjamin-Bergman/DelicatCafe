@@ -11,6 +11,7 @@ import java.util.*;
  *
  * @param <T> The type of {@code Inventoried} item this resource manages
  */
+@SuppressWarnings("InterfaceMayBeAnnotatedFunctional")
 public interface InventoriedFile<T extends Inventoried> {
     /**
      * @return The items managed by this resource
