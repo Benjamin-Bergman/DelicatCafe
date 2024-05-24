@@ -2,7 +2,7 @@
  * Copyright (c) Benjamin Bergman 2024.
  */
 
-package com.pluralsight.orders.bread;
+package com.pluralsight.orders.breads;
 
 import com.pluralsight.io.*;
 
