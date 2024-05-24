@@ -6,6 +6,7 @@ package com.pluralsight.io;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.*;
 
 /**
  * A file-backed implementation of {@link InventoriedFile}.
@@ -21,20 +22,58 @@ public abstract class BaseInventoriedFile<T extends BaseInventoried> implements 
      */
     protected BaseInventoriedFile(File file) {
         this.file = file;
-        items = load(file);
+        items = load();
     }
 
-    private static <T> List<T> load(File file) {
-        return List.of();
+    private static Consumer<String> tryWrite(BufferedWriter bw) {
+        return str -> {
+            try {
+                bw.write(str);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        };
     }
 
     @Override
     public List<T> getItems() {
-        return items;
+        return Collections.unmodifiableList(items);
+    }
+
+    private List<T> load() {
+        try (FileReader fr = new FileReader(file);
+             BufferedReader br = new BufferedReader(fr)) {
+            return br.lines()
+                .filter(s -> !s.isBlank() && !s.isEmpty())
+                .map(this::readLine)
+                .toList();
+        } catch (IOException e) {
+            throw new UncheckedIOException("Could not load inventory file \"" + file.getPath() + "\"!", e);
+        }
+    }
+
+    private T readLine(String line) {
+        var sep = line.indexOf('|');
+        int count = Integer.parseInt(line.substring(0, sep));
+
+        var obj = readFromLine(line.substring(sep + 1));
+        obj.setAmount(count);
+        obj.setOwner(this);
+        return obj;
+    }
+
+    private String writeLine(T item) {
+        return "%d|%s%n".formatted(item.getAmount(), convertToLine(item));
     }
 
     void save() {
-
+        try (FileWriter fw = new FileWriter(file);
+             BufferedWriter bw = new BufferedWriter(fw)) {
+            items.stream().map(this::writeLine).forEach(tryWrite(bw));
+        } catch (IOException | UncheckedIOException e) {
+            System.err.println("Error: Could not update inventory file \"" + file.getPath() + "\"!");
+            e.printStackTrace(System.err);
+        }
     }
 
     /**

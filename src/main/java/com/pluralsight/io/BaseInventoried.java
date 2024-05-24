@@ -7,6 +7,7 @@ package com.pluralsight.io;
 /**
  * Base type for {@link Inventoried} items managed by a subclass of {@link BaseInventoriedFile}.
  */
+@SuppressWarnings("AbstractClassWithoutAbstractMethods")
 public abstract class BaseInventoried implements Inventoried {
     private BaseInventoriedFile<?> owner;
     private int amount;
@@ -20,6 +21,10 @@ public abstract class BaseInventoried implements Inventoried {
     @Override
     public boolean isInStock() {
         return amount > 0;
+    }
+
+    int getAmount() {
+        return amount;
     }
 
     void setAmount(int amount) {
