@@ -6,7 +6,6 @@ package com.pluralsight.io;
 
 import java.io.*;
 import java.util.*;
-import java.util.function.*;
 
 /**
  * A file-backed implementation of {@link InventoriedFile}.
@@ -24,16 +23,6 @@ public abstract class BaseInventoriedFile<T extends BaseInventoried> implements 
     protected BaseInventoriedFile(File file) {
         this.file = file;
         items = load();
-    }
-
-    private static Consumer<String> tryWrite(BufferedWriter bw) {
-        return str -> {
-            try {
-                bw.write(str);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        };
     }
 
     @Override
@@ -70,7 +59,13 @@ public abstract class BaseInventoriedFile<T extends BaseInventoried> implements 
     void save() {
         try (FileWriter fw = new FileWriter(file);
              BufferedWriter bw = new BufferedWriter(fw)) {
-            items.stream().map(this::writeLine).forEach(tryWrite(bw));
+            items.stream().map(this::writeLine).forEach(str -> {
+                try {
+                    bw.write(str);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
         } catch (IOException | UncheckedIOException e) {
             System.err.println("Error: Could not update inventory file \"" + file.getPath() + "\"!");
             e.printStackTrace(System.err);
