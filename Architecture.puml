@@ -166,7 +166,7 @@ package orders {
         ExtraType "0..*" *--o "1" ExtraTypeFile
     }
 
-    package bread {
+    package breads {
         class BreadType <<io.BaseInventoried>> {
             - String name
             ~ BreadType(String)
