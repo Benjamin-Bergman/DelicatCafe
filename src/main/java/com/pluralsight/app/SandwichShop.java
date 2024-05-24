@@ -35,7 +35,7 @@ public final class SandwichShop {
      * @param drinks   The file for drinks
      * @param extras   The file for extras
      */
-    @SuppressWarnings("FeatureEnvy")
+    @SuppressWarnings({"FeatureEnvy", "IfCanBeAssertion"})
     public SandwichShop(InventoriedFile<ToppingType> toppings, InventoriedFile<BreadType> breads, InventoriedFile<DrinkType> drinks, InventoriedFile<ExtraType> extras) {
         this.toppings = toppings;
         this.breads = breads;
@@ -112,7 +112,7 @@ public final class SandwichShop {
         return queryListCommand(scanner, out, List.of(DrinkSize.values()));
     }
 
-    @SuppressWarnings("FeatureEnvy")
+    @SuppressWarnings({"FeatureEnvy", "BooleanMethodNameMustStartWithQuestion"})
     private static boolean runCheckOut(Iterator<String> scanner, PrintStream out, Receipt receipt) {
         out.printf("Your total is: $%.2f%n", receipt.getPrice());
         out.println("Are you sure you want to make this purchase?");
@@ -183,7 +183,7 @@ public final class SandwichShop {
         return queryListCommand(scanner, out, extras.getItems(), et -> "%s ($%.2f)".formatted(et.getName(), et.getPrice()));
     }
 
-    @SuppressWarnings({"FeatureEnvy", "OverlyComplexMethod", "MethodWithMoreThanThreeNegations", "OverlyLongMethod"})
+    @SuppressWarnings({"FeatureEnvy", "OverlyComplexMethod", "OverlyLongMethod"})
     private void runOrder(Scanner scanner, PrintStream out) {
         Order order = new Order();
         while (true) {
@@ -244,7 +244,7 @@ public final class SandwichShop {
         }
     }
 
-    @SuppressWarnings({"FeatureEnvy", "OverlyComplexMethod", "OverlyLongMethod"})
+    @SuppressWarnings({"FeatureEnvy", "OverlyComplexMethod", "OverlyLongMethod", "BooleanMethodNameMustStartWithQuestion"})
     private boolean runCartView(Scanner scanner, PrintStream out, Order order) {
         var receipt = new Receipt(order);
         while (true) {

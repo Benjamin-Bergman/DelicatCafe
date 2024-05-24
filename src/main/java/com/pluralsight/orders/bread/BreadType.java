@@ -10,6 +10,7 @@ import com.pluralsight.io.*;
  * Represents a type of bread.
  */
 public final class BreadType extends BaseInventoried {
+    @SuppressWarnings("FieldNamingConvention")
     private final String name;
 
     BreadType(String name) {

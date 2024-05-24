@@ -12,8 +12,14 @@ public abstract class BaseInventoried implements Inventoried {
     private BaseInventoriedFile<?> owner;
     private int amount;
 
+    protected BaseInventoried() {
+        //noinspection AssignmentToNull
+        owner = null;
+        amount = 0;
+    }
+
     @Override
-    public void consume(int amount) {
+    public void consume(@SuppressWarnings("ParameterHidesMemberVariable") int amount) {
         this.amount -= amount;
         owner.save();
     }

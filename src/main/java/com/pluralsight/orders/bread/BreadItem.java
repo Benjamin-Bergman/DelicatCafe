@@ -12,6 +12,7 @@ import java.util.*;
  * Represents a line item for bread.
  */
 public final class BreadItem implements InventoriedLineItem {
+    @SuppressWarnings("FieldNamingConvention")
     private BreadType type;
 
     /**

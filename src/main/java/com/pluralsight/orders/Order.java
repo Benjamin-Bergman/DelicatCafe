@@ -13,6 +13,7 @@ import java.util.*;
 /**
  * Represents an order.
  */
+@SuppressWarnings("NewClassNamingConvention")
 public final class Order implements LineItem {
     private final List<ExtraItem> extras;
     private final List<SandwichItem> sandwiches;
@@ -130,7 +131,9 @@ public final class Order implements LineItem {
      * Represents an unmodifiable view of a drink line item.
      */
     public static final class DrinkView {
+        @SuppressWarnings("FieldNamingConvention")
         private final DrinkType type;
+        @SuppressWarnings("FieldNamingConvention")
         private final DrinkSize size;
 
         private DrinkView(DrinkItem item) {

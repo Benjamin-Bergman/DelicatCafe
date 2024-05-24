@@ -15,6 +15,7 @@ import java.util.*;
  */
 public final class SandwichItem implements LineItem {
     private final List<ToppingItem> toppings;
+    @SuppressWarnings("FieldNamingConvention")
     private SandwichSize size;
     private boolean toasted;
     private BreadItem bread;
@@ -42,6 +43,7 @@ public final class SandwichItem implements LineItem {
     /**
      * @param size The size of the sandwich
      */
+    @SuppressWarnings("unused")
     public void setSize(SandwichSize size) {
         this.size = size;
         for (ToppingItem item : toppings)
@@ -65,6 +67,7 @@ public final class SandwichItem implements LineItem {
     /**
      * @return The type of bread on the sandwich
      */
+    @SuppressWarnings("unused")
     public BreadType getBread() {
         return bread.getType();
     }
@@ -72,6 +75,7 @@ public final class SandwichItem implements LineItem {
     /**
      * @param bread The type of bread on the sandwich
      */
+    @SuppressWarnings("unused")
     public void setBread(BreadType bread) {
         this.bread = new BreadItem(bread);
     }
@@ -142,6 +146,7 @@ public final class SandwichItem implements LineItem {
      * Represents an unmodifiable view of a topping line item.
      */
     public static final class ToppingView {
+        @SuppressWarnings("FieldNamingConvention")
         private final ToppingType type;
         private final boolean extra;
 

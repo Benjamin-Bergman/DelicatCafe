@@ -12,7 +12,9 @@ import java.util.*;
  * Represents a line item for a drink.
  */
 public final class DrinkItem implements InventoriedLineItem {
+    @SuppressWarnings("FieldNamingConvention")
     private DrinkSize size;
+    @SuppressWarnings("FieldNamingConvention")
     private DrinkType type;
 
     /**
@@ -34,6 +36,7 @@ public final class DrinkItem implements InventoriedLineItem {
     /**
      * @param size The size of the drink
      */
+    @SuppressWarnings("unused")
     public void setSize(DrinkSize size) {
         this.size = size;
     }

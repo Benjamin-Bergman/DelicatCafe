@@ -10,6 +10,7 @@ import com.pluralsight.io.*;
  * Represents a type of drink.
  */
 public final class DrinkType extends BaseInventoried {
+    @SuppressWarnings("FieldNamingConvention")
     private final String name;
     private final double[] prices;
 

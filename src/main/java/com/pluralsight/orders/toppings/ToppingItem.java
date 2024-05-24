@@ -13,7 +13,9 @@ import java.util.*;
  * Represents a line item for a topping.
  */
 public final class ToppingItem implements InventoriedLineItem {
+    @SuppressWarnings("FieldNamingConvention")
     private ToppingType type;
+    @SuppressWarnings("FieldNamingConvention")
     private SandwichSize size;
     private boolean extra;
 
@@ -79,6 +81,7 @@ public final class ToppingItem implements InventoriedLineItem {
     /**
      * @return The size of sandwich this topping is on
      */
+    @SuppressWarnings("unused")
     public SandwichSize getSize() {
         return size;
     }

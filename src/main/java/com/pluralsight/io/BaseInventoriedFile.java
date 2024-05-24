@@ -14,6 +14,7 @@ import java.util.function.*;
  * @param <T> The type of {@code Inventoried} item this resource manages
  */
 public abstract class BaseInventoriedFile<T extends BaseInventoried> implements InventoriedFile<T> {
+    @SuppressWarnings("FieldNamingConvention")
     private final File file;
     private final List<T> items;
 

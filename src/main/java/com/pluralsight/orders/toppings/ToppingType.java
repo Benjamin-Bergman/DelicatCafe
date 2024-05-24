@@ -11,7 +11,9 @@ import com.pluralsight.orders.*;
  * Represents a type of topping.
  */
 public final class ToppingType extends BaseInventoried {
-    private final String name, category;
+    @SuppressWarnings("FieldNamingConvention")
+    private final String name;
+    private final String category;
     private final double[] prices;
 
     ToppingType(String name, String category, double[] prices) {

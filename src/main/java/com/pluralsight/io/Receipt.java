@@ -15,6 +15,7 @@ public final class Receipt {
     private static final int ITEM_WIDTH = 40;
     private static final int PRICE_WIDTH = 6;
 
+    @SuppressWarnings("FieldNamingConvention")
     private final LineItem item;
 
     /**
@@ -33,6 +34,7 @@ public final class Receipt {
 
         var totalPrice = item.getPrice() + subPrice;
 
+        //noinspection ConstantExpression
         return Stream.concat(
             Stream.of((" ".repeat(indent) + "%-" + width + "s%s").formatted(
                 item.getName(),
@@ -54,6 +56,7 @@ public final class Receipt {
      * @param file The file to save to
      * @return {@code true} if the operation succeeded, {@code false} otherwise
      */
+    @SuppressWarnings("BooleanMethodNameMustStartWithQuestion")
     public boolean saveToFile(File file) {
         try (FileWriter fw = new FileWriter(file);
              BufferedWriter bw = new BufferedWriter(fw)) {

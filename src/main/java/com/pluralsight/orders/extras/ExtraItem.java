@@ -12,6 +12,7 @@ import java.util.*;
  * Represents a line item for an extra item.
  */
 public final class ExtraItem implements InventoriedLineItem {
+    @SuppressWarnings("FieldNamingConvention")
     private ExtraType type;
 
     /**

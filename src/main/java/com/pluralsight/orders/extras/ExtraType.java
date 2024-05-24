@@ -10,6 +10,7 @@ import com.pluralsight.io.*;
  * Represents a type of extra item, e.g. a bag of chips.
  */
 public final class ExtraType extends BaseInventoried {
+    @SuppressWarnings("FieldNamingConvention")
     private final String name;
     private final double price;
 
