@@ -5,17 +5,21 @@
 package com.pluralsight.app;
 
 import com.pluralsight.io.*;
+import com.pluralsight.orders.*;
 import com.pluralsight.orders.bread.*;
 import com.pluralsight.orders.drinks.*;
 import com.pluralsight.orders.extras.*;
 import com.pluralsight.orders.toppings.*;
 
 import java.io.*;
+import java.util.*;
+import java.util.function.*;
 import java.util.stream.*;
 
 /**
  * Represents an app to run a sandwich shop.
  */
+@SuppressWarnings("ObjectAllocationInLoop")
 public final class SandwichShop {
     private final InventoriedFile<ToppingType> toppings;
     private final InventoriedFile<BreadType> breads;
@@ -37,6 +41,62 @@ public final class SandwichShop {
         this.extras = extras;
     }
 
+    private static int queryCommand(Scanner scanner, PrintStream out, Collection<Integer> valid) {
+        while (true) {
+            if (!scanner.hasNextInt()) {
+                out.printf("Unknown option \"%s\". Please try again.%n", scanner.next());
+                continue;
+            }
+
+            int input = scanner.nextInt();
+            if (!valid.contains(input)) {
+                out.printf("Unknown option \"%s\". Please try again.%n", input);
+                continue;
+            }
+
+            return input;
+        }
+    }
+
+    private static <T> T queryListCommand(Scanner scanner, PrintStream out, List<? extends T> options) {
+        return queryListCommand(scanner, out, options, Objects::toString);
+    }
+
+    private static <T> T queryListCommand(Scanner scanner, PrintStream out, List<? extends T> options, Function<? super T, String> displaySelector) {
+        for (//noinspection ReassignedVariable
+            int i = 0; i < options.size(); i++) {
+            T option = options.get(i);
+            out.printf("%d - %s%n", i + 1, displaySelector.apply(option));
+        }
+        int choice = queryCommand(scanner, out, IntStream.rangeClosed(1, options.size()).boxed().toList());
+        return options.get(choice);
+    }
+
+    @SuppressWarnings({"MethodWithMoreThanThreeNegations", "BooleanMethodNameMustStartWithQuestion"})
+    private static boolean queryYN(Iterator<String> scanner, PrintStream out, Boolean defaultValue) {
+        while (true) {
+            var fullInput = scanner.next();
+            var input = fullInput.trim().toLowerCase().charAt(0);
+            if (defaultValue != null)
+                return input == 'y' || input != 'n' && defaultValue;
+            if (input != 'y' && input != 'n') {
+                out.printf("Unknown option \"%s\". Please try again.%n", fullInput);
+                continue;
+            }
+            return input == 'y';
+        }
+    }
+
+    private static SandwichSize querySandwichSize(Scanner scanner, PrintStream out) {
+        out.println("Enter the sandwich size:");
+        return queryListCommand(scanner, out, List.of(SandwichSize.values()));
+    }
+
+    private static DrinkSize queryDrinkSize(Scanner scanner, PrintStream out) {
+        out.println("Enter the size:");
+        return queryListCommand(scanner, out, List.of(DrinkSize.values()));
+    }
+
     /**
      * Runs the shop.
      *
@@ -44,13 +104,94 @@ public final class SandwichShop {
      * @param out The stream for user output
      */
     public void runShop(InputStream in, PrintStream out) {
-        out.println("Toppings:");
-        out.println(toppings.getItems().stream().map(ToppingType::getName).collect(Collectors.joining(System.lineSeparator())));
-        out.println("Breads:");
-        out.println(breads.getItems().stream().map(BreadType::getName).collect(Collectors.joining(System.lineSeparator())));
-        out.println("Drinks:");
-        out.println(drinks.getItems().stream().map(DrinkType::getName).collect(Collectors.joining(System.lineSeparator())));
-        out.println("Extras:");
-        out.println(extras.getItems().stream().map(ExtraType::getName).collect(Collectors.joining(System.lineSeparator())));
+        try (Scanner scanner = new Scanner(in)) {
+            while (true) {
+                out.println("""
+                    1 - New Order
+                    2 - Exit""");
+
+                int input = queryCommand(scanner, out, List.of(1, 2));
+
+                if (input == 2) {
+                    out.println("Thank you for coming!");
+                    break;
+                }
+
+                runOrder(scanner, out);
+            }
+        }
+    }
+
+    private BreadType queryBreadType(Scanner scanner, PrintStream out) {
+        out.println("Enter the bread type:");
+        return queryListCommand(scanner, out, breads.getItems(), BreadType::getName);
+    }
+
+    @SuppressWarnings("FeatureEnvy")
+    private DrinkType queryDrinkType(Scanner scanner, PrintStream out) {
+        out.println("Enter the drink type:");
+        return queryListCommand(scanner, out, drinks.getItems(),
+            dt -> "%s ($%.2fL, $%.2fM, $%.2fS)".formatted(
+                dt.getName(),
+                dt.getPrice(DrinkSize.LARGE),
+                dt.getPrice(DrinkSize.MEDIUM),
+                dt.getPrice(DrinkSize.SMALL)
+            ));
+    }
+
+    private ExtraType queryExtra(Scanner scanner, PrintStream out) {
+        out.println("Enter the size:");
+        return queryListCommand(scanner, out, extras.getItems(), et -> "%s ($%.2f)".formatted(et.getName(), et.getPrice()));
+    }
+
+    @SuppressWarnings({"FeatureEnvy", "OverlyComplexMethod"})
+    private void runOrder(Scanner scanner, PrintStream out) {
+        Order order = new Order();
+        while (true) {
+            out.println("""
+                -- CUSTOMIZING AN ORDER --
+
+                1 - Add Sandwich
+                2 - Add Drink
+                3 - Add Extra
+                4 - View Cart
+                5 - Cancel Order""");
+
+            int input = queryCommand(scanner, out, List.of(1, 2, 3, 4, 5));
+
+            switch (input) {
+                case 1 -> {
+                    var size = querySandwichSize(scanner, out);
+                    var bread = queryBreadType(scanner, out);
+                    var sandwich = new SandwichItem(size, bread);
+                    runSandwichEditor(scanner, out, sandwich);
+                    order.addSandwich(sandwich);
+                }
+                case 2 -> {
+                    var drink = queryDrinkType(scanner, out);
+                    var size = queryDrinkSize(scanner, out);
+                    order.addDrink(drink, size);
+                }
+                case 3 -> order.addExtra(queryExtra(scanner, out));
+                case 4 -> runCartView(scanner, out);
+                case 5 -> {
+                    if (order.getSandwiches().isEmpty() && order.getDrinks().isEmpty() && order.getExtras().isEmpty())
+                        return;
+
+                    out.println("Are you sure you want to cancel the order?");
+                    if (queryYN(scanner, out, false))
+                        return;
+                }
+                default -> throw new IllegalStateException("This case should not be reachable.");
+            }
+        }
+    }
+
+    private void runCartView(Scanner scanner, PrintStream out) {
+
+    }
+
+    private void runSandwichEditor(Scanner scanner, PrintStream out, SandwichItem sandwich) {
+
     }
 }
