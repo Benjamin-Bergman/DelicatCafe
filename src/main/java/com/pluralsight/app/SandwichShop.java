@@ -128,6 +128,12 @@ public final class SandwichShop {
         return true;
     }
 
+    private static String formatTopping(ToppingType type, SandwichSize size) {
+        if (type.getPrice(size) == 0 && type.getExtraPrice(size) == 0)
+            return type.getName();
+        return "%s ($%.2f, $%.2f)".formatted(type.getName(), type.getPrice(size), type.getExtraPrice(size));
+    }
+
     /**
      * Runs the shop.
      *
@@ -316,7 +322,7 @@ public final class SandwichShop {
                         toppings.getItems().stream()
                             .filter(tp -> sandwich.getToppings().stream().noneMatch(st -> st.getType() == tp))
                             .filter(t -> t.getCategory().equals(category)).toList(),
-                        tt -> "%s ($%.2f, $%.2f)".formatted(tt.getName(), tt.getPrice(sandwich.getSize()), tt.getExtraPrice(sandwich.getSize())));
+                        tt -> formatTopping(tt, sandwich.getSize()));
                     assert topping != null : "toppings.getItems() must have values";
                     out.println("Would you like extra?");
                     var extra = queryYN(scanner, out, null);
