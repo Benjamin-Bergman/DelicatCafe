@@ -316,9 +316,11 @@ public final class SandwichShop {
                 1 - Toast
                 2 - Add Toppings
                 3 - Remove Toppings
-                4 - Done""");
+                4 - Change Bread
+                5 - Change Size
+                6 - Done""");
 
-            var choice = queryCommand(scanner, out, List.of(1, 2, 3, 4));
+            var choice = queryCommand(scanner, out, List.of(1, 2, 3, 4, 5, 6));
 
             switch (choice) {
                 case 1 -> {
@@ -359,6 +361,19 @@ public final class SandwichShop {
                         sandwich.removeTopping(topping.getType(), true);
                 }
                 case 4 -> {
+                    var bread = queryBreadType(scanner, out);
+                    if (bread == null) {
+                        out.println("Sorry, we appear to be out of bread right now. Please try again later.");
+                        continue;
+                    }
+                    sandwich.setBread(bread);
+                }
+                case 5 -> {
+                    var size = querySandwichSize(scanner, out);
+                    assert size != null : "SandwichSize enum must have values";
+                    sandwich.setSize(size);
+                }
+                case 6 -> {
                     return;
                 }
                 default -> throw new IllegalStateException("This case should not be reachable.");
