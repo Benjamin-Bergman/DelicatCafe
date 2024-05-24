@@ -4,6 +4,12 @@
 
 package com.pluralsight.io;
 
-public interface InventoriedLineItem extends Inventoried {
+/**
+ * Represents a line item associated with an {@link Inventoried} item.
+ */
+public interface InventoriedLineItem extends LineItem {
+    /**
+     * @return The inventoried item associated with this line item
+     */
     Inventoried getInventoried();
 }
