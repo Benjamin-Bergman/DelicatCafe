@@ -9,7 +9,7 @@ import com.pluralsight.io.*;
 import java.util.*;
 
 /**
- * Represents a line item for a {@link BreadType}.
+ * Represents a line item for bread.
  */
 public final class BreadItem implements InventoriedLineItem {
     private BreadType type;
