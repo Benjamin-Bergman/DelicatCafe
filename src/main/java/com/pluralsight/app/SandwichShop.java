@@ -278,6 +278,10 @@ public final class SandwichShop {
                     order.removeExtra(extra);
                 }
                 case 5 -> {
+                    if (receipt.getPrice() == 0) {
+                        out.println("There's nothing to check out!");
+                        continue;
+                    }
                     if (runCheckOut(scanner, out, receipt))
                         return true;
                 }
@@ -289,6 +293,7 @@ public final class SandwichShop {
         }
     }
 
+    @SuppressWarnings({"FeatureEnvy", "OverlyComplexMethod", "OverlyLongMethod"})
     private void runSandwichEditor(Scanner scanner, PrintStream out, SandwichItem sandwich) {
         var receipt = new Receipt(sandwich);
         while (true) {
