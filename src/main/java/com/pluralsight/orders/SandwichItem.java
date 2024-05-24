@@ -13,7 +13,7 @@ import java.util.*;
 /**
  * Represents a line item for a sandwich.
  */
-public final class Sandwich implements LineItem {
+public final class SandwichItem implements LineItem {
     private final List<ToppingItem> toppings;
     private SandwichSize size;
     private boolean toasted;
@@ -25,7 +25,7 @@ public final class Sandwich implements LineItem {
      * @param size  The size of the sandwich
      * @param bread The bread for the sandwich
      */
-    public Sandwich(SandwichSize size, BreadType bread) {
+    public SandwichItem(SandwichSize size, BreadType bread) {
         this.size = size;
         this.bread = new BreadItem(bread);
         toppings = new ArrayList<>();
