@@ -26,7 +26,7 @@ public abstract class BaseInventoriedFile<T extends BaseInventoried> implements 
     }
 
     @Override
-    public List<T> getItems() {
+    public final List<T> getItems() {
         return items.stream().filter(T::isInStock).toList();
     }
 
@@ -52,7 +52,7 @@ public abstract class BaseInventoriedFile<T extends BaseInventoried> implements 
         return obj;
     }
 
-    void save() {
+    final void save() {
         try (FileWriter fw = new FileWriter(file);
              BufferedWriter bw = new BufferedWriter(fw)) {
             for (T item : items)

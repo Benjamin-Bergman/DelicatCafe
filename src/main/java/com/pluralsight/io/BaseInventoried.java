@@ -19,25 +19,25 @@ public abstract class BaseInventoried implements Inventoried {
     }
 
     @Override
-    public void consume(@SuppressWarnings("ParameterHidesMemberVariable") int amount) {
+    public final void consume(@SuppressWarnings("ParameterHidesMemberVariable") int amount) {
         this.amount -= amount;
         owner.save();
     }
 
     @Override
-    public boolean isInStock() {
+    public final boolean isInStock() {
         return amount > 0;
     }
 
-    int getAmount() {
+    final int getAmount() {
         return amount;
     }
 
-    void setAmount(int amount) {
+    final void setAmount(int amount) {
         this.amount = amount;
     }
 
-    void setOwner(BaseInventoriedFile<?> owner) {
+    final void setOwner(BaseInventoriedFile<?> owner) {
         this.owner = owner;
     }
 }
