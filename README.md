@@ -30,7 +30,7 @@ Follow these steps to get your application running within IntelliJ IDEA:
 
 # Class Diagram
 
-![image](https://github.com/Benjamin-Bergman/DelicatCafe/assets/166551442/9422e701-4345-45fd-bc54-fa302d5d2e35)
+![image](https://github.com/Benjamin-Bergman/DelicatCafe/assets/166551442/c6095672-9269-418e-9bfe-b40cda8a67d6)
 
 # License
 
