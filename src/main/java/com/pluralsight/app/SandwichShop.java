@@ -123,6 +123,7 @@ public final class SandwichShop {
         }
 
         receipt.processSale();
+        out.println("Thanks for eating with us!");
 
         return true;
     }
