@@ -208,7 +208,9 @@ public final class SandwichShop {
                     out.println("Choose a sandwich:");
                     var sig = queryListCommand(scanner, out,
                         Stream.concat(
-                            signatures.getSignatures().stream(),
+                            signatures.getSignatures().stream()
+                                .filter(ss -> ss.getSandwich().getToppings().stream()
+                                    .allMatch(tv -> tv.getType().isInStock())),
                             Stream.of(new SignatureSandwich(null, "Build your own"))
                         ).toList(),
                         SignatureSandwich::getName);
