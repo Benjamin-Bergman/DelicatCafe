@@ -25,26 +25,27 @@ public final class Receipt {
         this.item = item;
     }
 
-    @SuppressWarnings("FeatureEnvy")
     private static Stream<String> processItem(LineItem item, int depth) {
-        var subPrice = item.getSubItems().stream().mapToDouble(LineItem::getPrice).sum();
+        var price = priceOf(item);
 
         var indent = 2 * depth;
         var width = ITEM_WIDTH - indent;
-
-        var totalPrice = item.getPrice() + subPrice;
 
         //noinspection ConstantExpression
         return Stream.concat(
             Stream.of((" ".repeat(indent) + "%-" + width + "s%s").formatted(
                 item.getName(),
-                totalPrice == 0 ? "" : ("%" + PRICE_WIDTH + ".2f").formatted(totalPrice))),
+                price == 0 ? "" : ("%" + PRICE_WIDTH + ".2f").formatted(price))),
             item.getSubItems().stream().flatMap(subItem -> processItem(subItem, depth + 1)));
     }
 
     private static Stream<LineItem> recursiveFlatMap(Stream<? extends LineItem> items) {
         var list = items.toList();
         return Stream.concat(list.stream(), list.stream().map(LineItem::getSubItems).map(List::stream).flatMap(Receipt::recursiveFlatMap));
+    }
+
+    private static double priceOf(LineItem item) {
+        return recursiveFlatMap(Stream.of(item)).mapToDouble(LineItem::getPrice).sum();
     }
 
     @Override
@@ -83,6 +84,6 @@ public final class Receipt {
      * @return The total price on this receipt
      */
     public double getPrice() {
-        return recursiveFlatMap(item.getSubItems().stream()).mapToDouble(LineItem::getPrice).sum();
+        return priceOf(item);
     }
 }
