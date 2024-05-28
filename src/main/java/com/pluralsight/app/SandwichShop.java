@@ -79,10 +79,8 @@ public final class SandwichShop {
         }
 
         for (//noinspection ReassignedVariable
-            int i = 0; i < options.size(); i++) {
-            T option = options.get(i);
-            out.printf("%d - %s%n", i + 1, displaySelector.apply(option));
-        }
+            int i = 0; i < options.size(); i++)
+            out.printf("%d - %s%n", i + 1, displaySelector.apply(options.get(i)));
         int choice = queryCommand(scanner, out, IntStream.rangeClosed(1, options.size()).boxed().toList());
         return options.get(choice - 1);
     }
