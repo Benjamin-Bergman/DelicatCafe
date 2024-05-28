@@ -49,6 +49,7 @@ package io {
 
         interface InventoriedFile<T extends Inventoried> {
             + List<T> getItems()
+            + List<T> getAllItems()
         }
 
         abstract class BaseInventoriedFile<T extends BaseInventoried> implements InventoriedFile {
@@ -59,6 +60,7 @@ package io {
             # {abstract} T readFromLine(String)
             # {abstract} String convertToLine(T)
             + List<T> getItems()
+            + List<T> getAllItems()
         }
 
         abstract BaseInventoried implements Inventoried {

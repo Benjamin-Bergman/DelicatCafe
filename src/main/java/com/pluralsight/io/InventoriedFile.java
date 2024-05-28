@@ -17,4 +17,9 @@ public interface InventoriedFile<T extends Inventoried> {
      * @return The items managed by this resource
      */
     List<T> getItems();
+
+    /**
+     * @return The items managed by this resource, including those which are out-of-stock
+     */
+    List<T> getAllItems();
 }

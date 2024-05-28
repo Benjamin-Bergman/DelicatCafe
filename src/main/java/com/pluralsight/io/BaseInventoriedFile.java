@@ -30,6 +30,11 @@ public abstract class BaseInventoriedFile<T extends BaseInventoried> implements 
         return items.stream().filter(T::isInStock).toList();
     }
 
+    @Override
+    public final List<T> getAllItems() {
+        return Collections.unmodifiableList(items);
+    }
+
     private List<T> load() {
         try (FileReader fr = new FileReader(file);
              BufferedReader br = new BufferedReader(fr)) {

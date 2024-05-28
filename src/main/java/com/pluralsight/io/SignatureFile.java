@@ -40,7 +40,7 @@ public final class SignatureFile {
 
         //noinspection OptionalGetWithoutIsPresent
         var bread = breads
-            .getItems()
+            .getAllItems()
             .stream()
             .filter(br -> br.getName().equals(parts[1]))
             .findFirst()
@@ -53,7 +53,7 @@ public final class SignatureFile {
             .skip(3)
             .map(part ->
                 toppings
-                    .getItems()
+                    .getAllItems()
                     .stream()
                     .filter(tp -> tp.getName().equals(part))
                     .findFirst()
