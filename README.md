@@ -9,7 +9,8 @@ Instructions on how to set up and run the project using IntelliJ IDEA.
 
 ## Prerequisites
 
-- IntelliJ IDEA: Ensure you have IntelliJ IDEA installed, which you can download from [here](https://www.jetbrains.com/idea/download/).
+- IntelliJ IDEA: Ensure you have IntelliJ IDEA installed, which you can download
+  from [here](https://www.jetbrains.com/idea/download/).
 - Java SDK: Make sure Java SDK is installed and configured in IntelliJ.
 
 ## Running the Application in IntelliJ
@@ -33,4 +34,4 @@ Follow these steps to get your application running within IntelliJ IDEA:
 
 # License
 
-[GPL 3](https://choosealicense.com/licenses/gpl-3.0/)
+[GPL 3](https://www.gnu.org/licenses/gpl-3.0.html)
