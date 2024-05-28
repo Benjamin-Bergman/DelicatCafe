@@ -28,7 +28,7 @@ public final class SandwichItem implements LineItem {
      */
     public SandwichItem(SandwichSize size, BreadType bread) {
         this.size = size;
-        this.bread = new BreadItem(bread);
+        this.bread = new BreadItem(bread, size);
         toppings = new ArrayList<>();
         toasted = false;
     }
@@ -48,6 +48,7 @@ public final class SandwichItem implements LineItem {
         this.size = size;
         for (ToppingItem item : toppings)
             item.setSize(size);
+        bread.setSize(size);
     }
 
     /**
@@ -77,7 +78,7 @@ public final class SandwichItem implements LineItem {
      */
     @SuppressWarnings("unused")
     public void setBread(BreadType bread) {
-        this.bread = new BreadItem(bread);
+        this.bread = new BreadItem(bread, size);
     }
 
     /**

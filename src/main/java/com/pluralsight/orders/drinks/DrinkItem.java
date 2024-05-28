@@ -56,8 +56,12 @@ public final class DrinkItem implements InventoriedLineItem {
     }
 
     @Override
-    public Inventoried getInventoried() {
-        return type;
+    public void consume() {
+        type.consume(switch (size) {
+            case SMALL -> 1;
+            case MEDIUM -> 2;
+            case LARGE -> 3;
+        });
     }
 
     @Override

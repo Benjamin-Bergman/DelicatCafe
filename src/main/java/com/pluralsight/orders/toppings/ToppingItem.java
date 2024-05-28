@@ -46,8 +46,12 @@ public final class ToppingItem implements InventoriedLineItem {
     }
 
     @Override
-    public Inventoried getInventoried() {
-        return type;
+    public void consume() {
+        type.consume(switch (size) {
+            case FOUR_IN -> 1;
+            case EIGHT_IN -> 2;
+            case TWELVE_IN -> 3;
+        });
     }
 
     /**

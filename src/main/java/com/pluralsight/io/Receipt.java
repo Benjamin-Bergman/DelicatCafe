@@ -75,7 +75,7 @@ public final class Receipt {
     public void processSale() {
         recursiveFlatMap(Stream.of(item)).forEach(flatItem -> {
             if (flatItem instanceof InventoriedLineItem inv)
-                inv.getInventoried().consume(1);
+                inv.consume();
         });
     }
 

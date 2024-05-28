@@ -5,6 +5,7 @@
 package com.pluralsight.orders.breads;
 
 import com.pluralsight.io.*;
+import com.pluralsight.orders.*;
 
 import java.util.*;
 
@@ -14,12 +15,16 @@ import java.util.*;
 public final class BreadItem implements InventoriedLineItem {
     @SuppressWarnings("FieldNamingConvention")
     private BreadType type;
+    @SuppressWarnings("FieldNamingConvention")
+    private SandwichSize size;
 
     /**
      * @param type The type of bread this line item is for
+     * @param size The size of sandwich this line item is for
      */
-    public BreadItem(BreadType type) {
+    public BreadItem(BreadType type, SandwichSize size) {
         this.type = type;
+        this.size = size;
     }
 
     /**
@@ -52,7 +57,25 @@ public final class BreadItem implements InventoriedLineItem {
     }
 
     @Override
-    public Inventoried getInventoried() {
-        return type;
+    public void consume() {
+        type.consume(switch (size) {
+            case FOUR_IN -> 1;
+            case EIGHT_IN -> 2;
+            case TWELVE_IN -> 3;
+        });
+    }
+
+    /**
+     * @return The size of sandwich this line item is for
+     */
+    public SandwichSize getSize() {
+        return size;
+    }
+
+    /**
+     * @param size The size of sandwich this line item is for
+     */
+    public void setSize(SandwichSize size) {
+        this.size = size;
     }
 }

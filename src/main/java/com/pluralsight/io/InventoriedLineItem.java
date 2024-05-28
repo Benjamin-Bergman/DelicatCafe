@@ -9,7 +9,7 @@ package com.pluralsight.io;
  */
 public interface InventoriedLineItem extends LineItem {
     /**
-     * @return The inventoried item associated with this line item
+     * Consumes the line item from its inventory.
      */
-    Inventoried getInventoried();
+    void consume();
 }

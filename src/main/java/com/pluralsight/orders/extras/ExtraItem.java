@@ -37,8 +37,8 @@ public final class ExtraItem implements InventoriedLineItem {
     }
 
     @Override
-    public Inventoried getInventoried() {
-        return type;
+    public void consume() {
+        type.consume(1);
     }
 
     @Override
