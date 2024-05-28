@@ -34,6 +34,16 @@ public final class SandwichItem implements LineItem {
     }
 
     /**
+     * @param other A SandwichItem to copy
+     */
+    @SuppressWarnings("AccessingNonPublicFieldOfAnotherObject")
+    public SandwichItem(SandwichItem other) {
+        this(other.size, other.bread.getType());
+        toasted = other.toasted;
+        toppings.addAll(other.toppings.stream().map(ToppingItem::new).toList());
+    }
+
+    /**
      * @return The size of the sandwich
      */
     public SandwichSize getSize() {

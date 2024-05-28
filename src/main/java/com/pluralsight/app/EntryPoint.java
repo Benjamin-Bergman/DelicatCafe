@@ -4,6 +4,7 @@
 
 package com.pluralsight.app;
 
+import com.pluralsight.io.*;
 import com.pluralsight.orders.breads.*;
 import com.pluralsight.orders.drinks.*;
 import com.pluralsight.orders.extras.*;
@@ -27,7 +28,9 @@ public final class EntryPoint {
         var drinks = new DrinkTypeFile(new File("drinks.csv"));
         var extras = new ExtraTypeFile(new File("extras.csv"));
 
-        var shop = new SandwichShop(toppings, breads, drinks, extras);
+        var signatures = SignatureFile.load(new File("signatures.csv"), toppings, breads);
+
+        var shop = new SandwichShop(toppings, breads, drinks, extras, signatures);
 
         shop.runShop(System.in, System.out);
     }

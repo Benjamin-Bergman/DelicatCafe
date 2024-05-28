@@ -30,6 +30,14 @@ public final class ToppingItem implements InventoriedLineItem {
         this.extra = extra;
     }
 
+    /**
+     * @param other A ToppingItem to copy
+     */
+    @SuppressWarnings("AccessingNonPublicFieldOfAnotherObject")
+    public ToppingItem(ToppingItem other) {
+        this(other.type, other.size, other.extra);
+    }
+
     @Override
     public String getName() {
         return (extra ? "Extra " : "") + type.getName();

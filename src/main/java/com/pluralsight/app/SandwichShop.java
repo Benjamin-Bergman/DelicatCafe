@@ -26,21 +26,24 @@ public final class SandwichShop {
     private final InventoriedFile<BreadType> breads;
     private final InventoriedFile<DrinkType> drinks;
     private final InventoriedFile<ExtraType> extras;
+    private final SignatureFile signatures;
 
     /**
      * Creates a new shop with the specified inventory files.
      *
-     * @param toppings The file for toppings
-     * @param breads   The file for breads
-     * @param drinks   The file for drinks
-     * @param extras   The file for extras
+     * @param toppings   The file for toppings
+     * @param breads     The file for breads
+     * @param drinks     The file for drinks
+     * @param extras     The file for extras
+     * @param signatures The file for signature sandwiches
      */
     @SuppressWarnings({"FeatureEnvy", "IfCanBeAssertion"})
-    public SandwichShop(InventoriedFile<ToppingType> toppings, InventoriedFile<BreadType> breads, InventoriedFile<DrinkType> drinks, InventoriedFile<ExtraType> extras) {
+    public SandwichShop(InventoriedFile<ToppingType> toppings, InventoriedFile<BreadType> breads, InventoriedFile<DrinkType> drinks, InventoriedFile<ExtraType> extras, SignatureFile signatures) {
         this.toppings = toppings;
         this.breads = breads;
         this.drinks = drinks;
         this.extras = extras;
+        this.signatures = signatures;
         if (toppings.getItems().isEmpty())
             throw new IllegalArgumentException("The must be some toppings");
         if (breads.getItems().isEmpty())
@@ -201,12 +204,29 @@ public final class SandwichShop {
                 case 1 -> {
                     var size = querySandwichSize(scanner, out);
                     assert size != null : "SandwichSize enum must have values";
-                    var bread = queryBreadType(scanner, out);
-                    if (bread == null) {
-                        out.println("Sorry, we appear to be out of bread right now. Please try again later.");
-                        continue;
+
+                    out.println("Choose a sandwich:");
+                    var sig = queryListCommand(scanner, out,
+                        Stream.concat(
+                            signatures.getSignatures().stream(),
+                            Stream.of(new SignatureSandwich(null, "Build your own"))
+                        ).toList(),
+                        SignatureSandwich::getName);
+
+                    assert sig != null : "There is always the default choice";
+                    SandwichItem sandwich;
+                    if ("Build your own".equals(sig.getName())) {
+                        var bread = queryBreadType(scanner, out);
+                        if (bread == null) {
+                            out.println("Sorry, we appear to be out of bread right now. Please try again later.");
+                            continue;
+                        }
+                        sandwich = new SandwichItem(size, bread);
+                    } else {
+                        sandwich = sig.getSandwich();
+                        sandwich.setSize(size);
                     }
-                    var sandwich = new SandwichItem(size, bread);
+
                     runSandwichEditor(scanner, out, sandwich);
                     order.addSandwich(sandwich);
                 }

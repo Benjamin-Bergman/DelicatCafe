@@ -6,7 +6,7 @@ package app {
     }
 
     class SandwichShop {
-        + SandwichShop(InventoriedFile<ToppingType>, InventoriedFile<BreadType>, InventoriedFile<DrinkType>, InventoriedFile<ExtraType>)
+        + SandwichShop(InventoriedFile<ToppingType>, InventoriedFile<BreadType>, InventoriedFile<DrinkType>, InventoriedFile<ExtraType>, SignatureFile)
         + void runShop(InputStream, PrintStream)
     }
 
@@ -14,62 +14,80 @@ package app {
 }
 
 package io {
-    interface LineItem {
-        + String getName()
-        + double getPrice()
-        + List<LineItem> getSubItems()
+    class SignatureFile {
+        - List<SignatureSandwich> sandwiches
+        - private SignatureFile(List<SignatureSandwich>)
+        + List<SignatureSandwich> getSignatures()
+        + {static} SignatureFile load(File, InventoriedFile<ToppingType>, InventoriedFile<BreadType>)
     }
+    SignatureFile -r[hidden]- BaseInventoriedFile
 
-    class Receipt {
-        - LineItem item
-        + Receipt(LineItem)
-        + String toString()
-        + boolean saveTo(File)
-        + void processSale()
-        + double getPrice()
+    together {
+        interface LineItem {
+            + String getName()
+            + double getPrice()
+            + List<LineItem> getSubItems()
+        }
+
+        class Receipt {
+            - LineItem item
+            + Receipt(LineItem)
+            + String toString()
+            + boolean saveTo(File)
+            + void processSale()
+            + double getPrice()
+        }
+
+        interface Inventoried {
+            + void consume(int)
+            + boolean isInStock()
+        }
+
+        interface InventoriedLineItem extends LineItem {
+            + Inventoried getInventoried()
+        }
+
+        interface InventoriedFile<T extends Inventoried> {
+            + List<T> getItems()
+        }
+
+        abstract class BaseInventoriedFile<T extends BaseInventoried> implements InventoriedFile {
+            - List<T> items
+            - File file
+            ~ void save()
+            # BaseInventoriedFile(File)
+            # {abstract} T readFromLine(String)
+            # {abstract} String convertToLine(T)
+            + List<T> getItems()
+        }
+
+        abstract BaseInventoried implements Inventoried {
+            - BaseInventoriedFile<?> owner
+            - int amount
+            ~ int getAmount()
+            ~ void setAmount(int )
+            ~ void setOwner(BaseInventoried<?>)
+            + void consume(int)
+            + boolean isInStock()
+        }
+
+        LineItem "1" o-- Receipt
+        LineItem "0..*" o-- LineItem
+        BaseInventoried "0..*" *--o "1" BaseInventoriedFile
+        Inventoried <- InventoriedFile
+        Inventoried o-- InventoriedLineItem
     }
-
-    interface Inventoried {
-        + void consume(int)
-        + boolean isInStock()
-    }
-
-    interface InventoriedLineItem extends LineItem {
-        + Inventoried getInventoried()
-    }
-
-    interface InventoriedFile<T extends Inventoried> {
-        + List<T> getItems()
-    }
-
-    abstract class BaseInventoriedFile<T extends BaseInventoried> implements InventoriedFile {
-        - List<T> items
-        - File file
-        ~ void save()
-        # BaseInventoriedFile(File)
-        # {abstract} T readFromLine(String)
-        # {abstract} String convertToLine(T)
-        + List<T> getItems()
-    }
-
-    abstract BaseInventoried implements Inventoried {
-        - BaseInventoriedFile<?> owner
-        - int amount
-        ~ int getAmount()
-        ~ void setAmount(int )
-        ~ void setOwner(BaseInventoried<?>)
-        + void consume(int)
-        + boolean isInStock()
-    }
-
-    LineItem "1" o-- Receipt
-    LineItem "0..*" o-- LineItem
-    BaseInventoried "0..*" *--o "1" BaseInventoriedFile
-    Inventoried <- InventoriedFile
-    Inventoried o-- InventoriedLineItem
 }
 
 package orders {
+    class SignatureSandwich {
+        - SandwichItem sandwich
+        - String name
+        + SignatureSandwich(SandwichItem, String)
+        + SandwichItem getSandwich()
+        + String getName()
+    }
+    SignatureSandwich -d[hidden]- extras.ExtraType
     enum SandwichSize {
         - String display
         + {static} FOUR_IN
@@ -85,6 +103,7 @@ package orders {
         - List<Topping> toppings
         __
         + Sandwich(SandwichSize, BreadType)
+        + Sandwich(SandwichItem)
         + SandwichSize getSize()
         + void setSize(SandwichSize)
         + boolean isToasted()
@@ -246,7 +265,8 @@ package orders {
             - ToppingType type
             - SandwichSize size
             - boolean extra
-            + Topping(ToppingType, SandwichSize, boolean)
+            + ToppingItem(ToppingType, SandwichSize, boolean)
+            + ToppingItem(ToppingItem)
             + ToppingType getType()
             + void setType(ToppingType)
             + boolean isExtra()
@@ -262,7 +282,7 @@ package orders {
         ToppingType "0..*" *--o "1" ToppingTypeFile
     }
 
-    SandwichSize "1" o-- SandwichItem
+    SandwichSize "1" o-r- SandwichItem
     BreadItem "1" *-- SandwichItem
     DrinkSize "1" o-- DrinkItem
     DrinkType "1" o-- DrinkItem
