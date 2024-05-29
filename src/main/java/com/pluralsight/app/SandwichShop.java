@@ -20,7 +20,7 @@ import java.util.stream.*;
 /**
  * Represents an app to run a sandwich shop.
  */
-@SuppressWarnings("ObjectAllocationInLoop")
+@SuppressWarnings({"ObjectAllocationInLoop", "OverlyComplexClass"})
 public final class SandwichShop {
     private final InventoriedFile<ToppingType> toppings;
     private final InventoriedFile<BreadType> breads;
@@ -86,6 +86,27 @@ public final class SandwichShop {
             out.printf("%d - %s%n", i + 1, displaySelector.apply(options.get(i)));
         int choice = queryCommand(scanner, out, IntStream.rangeClosed(1, options.size()).boxed().toList());
         return options.get(choice - 1);
+    }
+
+    private static <T> Optional<T> queryListCommandOrCancel(Scanner scanner, PrintStream out, List<? extends T> options) {
+        return queryListCommandOrCancel(scanner, out, options, Objects::toString);
+    }
+
+    private static <T> Optional<T> queryListCommandOrCancel(Scanner scanner, PrintStream out, List<? extends T> options, Function<? super T, String> displaySelector) {
+        if (options.isEmpty()) {
+            out.println("Nothing to choose");
+            //noinspection OptionalAssignedToNull
+            return null;
+        }
+
+        for (//noinspection ReassignedVariable
+            int i = 0; i < options.size(); i++)
+            out.printf("%d - %s%n", i + 1, displaySelector.apply(options.get(i)));
+        out.printf("%d - Cancel", options.size() + 1);
+        int choice = queryCommand(scanner, out, IntStream.rangeClosed(1, options.size() + 1).boxed().toList());
+        if (choice == options.size() + 1)
+            return Optional.empty();
+        return Optional.of(options.get(choice - 1));
     }
 
     @SuppressWarnings({"MethodWithMoreThanThreeNegations", "BooleanMethodNameMustStartWithQuestion"})
@@ -169,9 +190,9 @@ public final class SandwichShop {
     }
 
     @SuppressWarnings("FeatureEnvy")
-    private DrinkType queryDrinkType(Scanner scanner, PrintStream out) {
+    private Optional<DrinkType> queryDrinkType(Scanner scanner, PrintStream out) {
         out.println("Enter the drink type:");
-        return queryListCommand(scanner, out, drinks.getItems(),
+        return queryListCommandOrCancel(scanner, out, drinks.getItems(),
             dt -> "%s ($%.2fL, $%.2fM, $%.2fS)".formatted(
                 dt.getName(),
                 dt.getPrice(DrinkSize.LARGE),
@@ -180,9 +201,9 @@ public final class SandwichShop {
             ));
     }
 
-    private ExtraType queryExtra(Scanner scanner, PrintStream out) {
-        out.println("Enter the size:");
-        return queryListCommand(scanner, out, extras.getItems(), et -> "%s ($%.2f)".formatted(et.getName(), et.getPrice()));
+    private Optional<ExtraType> queryExtra(Scanner scanner, PrintStream out) {
+        out.println("Enter the item:");
+        return queryListCommandOrCancel(scanner, out, extras.getItems(), et -> "%s ($%.2f)".formatted(et.getName(), et.getPrice()));
     }
 
     @SuppressWarnings({"FeatureEnvy", "OverlyComplexMethod", "OverlyLongMethod"})
@@ -206,7 +227,7 @@ public final class SandwichShop {
                     assert size != null : "SandwichSize enum must have values";
 
                     out.println("Choose a sandwich:");
-                    var sig = queryListCommand(scanner, out,
+                    var sig = queryListCommandOrCancel(scanner, out,
                         Stream.concat(
                             signatures.getSignatures().stream()
                                 .filter(ss -> ss.getSandwich().getToppings().stream()
@@ -216,8 +237,10 @@ public final class SandwichShop {
                         SignatureSandwich::getName);
 
                     assert sig != null : "There is always the default choice";
+                    if (sig.isEmpty())
+                        continue;
                     SandwichItem sandwich;
-                    if ("Build your own".equals(sig.getName())) {
+                    if ("Build your own".equals(sig.get().getName())) {
                         var bread = queryBreadType(scanner, out);
                         if (bread == null) {
                             out.println("Sorry, we appear to be out of bread right now. Please try again later.");
@@ -225,7 +248,7 @@ public final class SandwichShop {
                         }
                         sandwich = new SandwichItem(size, bread);
                     } else {
-                        sandwich = sig.getSandwich();
+                        sandwich = sig.get().getSandwich();
                         sandwich.setSize(size);
                     }
 
@@ -234,11 +257,15 @@ public final class SandwichShop {
                 }
                 case 2 -> {
                     var drink = queryDrinkType(scanner, out);
-                    if (drink == null)
+                    if (drink == null) {
                         out.println("Sorry, we appear to be out of drinks right now. Please try again later.");
+                        continue;
+                    }
+                    if (drink.isEmpty())
+                        continue;
                     var size = queryDrinkSize(scanner, out);
                     assert size != null : "DrinkSize enum must have values";
-                    order.addDrink(drink, size);
+                    order.addDrink(drink.get(), size);
                 }
                 case 3 -> {
                     var extra = queryExtra(scanner, out);
@@ -246,7 +273,9 @@ public final class SandwichShop {
                         out.println("Sorry, we appear to be out of extras right now. Please try again later.");
                         continue;
                     }
-                    order.addExtra(extra);
+                    if (extra.isEmpty())
+                        continue;
+                    order.addExtra(extra.get());
                 }
                 case 4 -> {
                     if (runCartView(scanner, out, order))
@@ -284,32 +313,32 @@ public final class SandwichShop {
             switch (choice) {
                 case 1 -> {
                     out.println("Modify which sandwich?");
-                    var sandwich = queryListCommand(scanner, out, IntStream.rangeClosed(1, order.getSandwiches().size()).boxed().toList());
-                    if (sandwich == null)
+                    var sandwich = queryListCommandOrCancel(scanner, out, IntStream.rangeClosed(1, order.getSandwiches().size()).boxed().toList());
+                    if (sandwich == null || sandwich.isEmpty())
                         continue;
-                    runSandwichEditor(scanner, out, order.getSandwiches().get(sandwich - 1));
+                    runSandwichEditor(scanner, out, order.getSandwiches().get(sandwich.get() - 1));
                     return false;
                 }
                 case 2 -> {
                     out.println("Remove which sandwich?");
-                    var sandwich = queryListCommand(scanner, out, IntStream.rangeClosed(1, order.getSandwiches().size()).boxed().toList());
-                    if (sandwich == null)
+                    var sandwich = queryListCommandOrCancel(scanner, out, IntStream.rangeClosed(1, order.getSandwiches().size()).boxed().toList());
+                    if (sandwich == null || sandwich.isEmpty())
                         continue;
-                    order.removeSandwich(sandwich - 1);
+                    order.removeSandwich(sandwich.get() - 1);
                 }
                 case 3 -> {
                     out.println("Remove which drink?");
-                    var drink = queryListCommand(scanner, out, order.getDrinks(), dv -> "%s %s".formatted(dv.getSize(), dv.getType().getName()));
-                    if (drink == null)
+                    var drink = queryListCommandOrCancel(scanner, out, order.getDrinks(), dv -> "%s %s".formatted(dv.getSize(), dv.getType().getName()));
+                    if (drink == null || drink.isEmpty())
                         continue;
-                    order.removeDrink(drink.getType(), drink.getSize());
+                    order.removeDrink(drink.get().getType(), drink.get().getSize());
                 }
                 case 4 -> {
                     out.println("Remove which extra?");
-                    var extra = queryListCommand(scanner, out, order.getExtras(), ExtraType::getName);
-                    if (extra == null)
+                    var extra = queryListCommandOrCancel(scanner, out, order.getExtras(), ExtraType::getName);
+                    if (extra == null || extra.isEmpty())
                         continue;
-                    order.removeExtra(extra);
+                    order.removeExtra(extra.get());
                 }
                 case 5 -> {
                     if (receipt.getPrice() == 0) {
@@ -327,7 +356,7 @@ public final class SandwichShop {
         }
     }
 
-    @SuppressWarnings({"FeatureEnvy", "OverlyComplexMethod", "OverlyLongMethod"})
+    @SuppressWarnings({"FeatureEnvy", "OverlyComplexMethod", "OverlyLongMethod", "MethodWithMoreThanThreeNegations"})
     private void runSandwichEditor(Scanner scanner, PrintStream out, SandwichItem sandwich) {
         var receipt = new Receipt(sandwich);
         while (true) {
@@ -346,11 +375,11 @@ public final class SandwichShop {
             switch (choice) {
                 case 1 -> {
                     out.println("Would you like your sandwich toasted?");
-                    sandwich.setToasted(queryYN(scanner, out, sandwich.isToasted()));
+                    sandwich.setToasted(queryYN(scanner, out, !sandwich.isToasted()));
                 }
                 case 2 -> {
                     out.println("Choose a category:");
-                    var category = queryListCommand(scanner, out,
+                    var category = queryListCommandOrCancel(scanner, out,
                         toppings.getItems().stream()
                             .filter(tp -> sandwich.getToppings().stream().noneMatch(st -> st.getType() == tp))
                             .map(ToppingType::getCategory).distinct().toList());
@@ -358,28 +387,32 @@ public final class SandwichShop {
                         out.println("No more toppings to add :(");
                         continue;
                     }
+                    if (category.isEmpty())
+                        continue;
                     out.println("Choose a topping:");
-                    var topping = queryListCommand(scanner, out,
+                    var topping = queryListCommandOrCancel(scanner, out,
                         toppings.getItems().stream()
                             .filter(tp -> sandwich.getToppings().stream().noneMatch(st -> st.getType() == tp))
-                            .filter(t -> t.getCategory().equals(category)).toList(),
+                            .filter(t -> t.getCategory().equals(category.get())).toList(),
                         tt -> formatTopping(tt, sandwich.getSize()));
                     assert topping != null : "toppings.getItems() must have values after we just used it";
+                    if (topping.isEmpty())
+                        continue;
                     out.println("Would you like extra?");
                     var extra = queryYN(scanner, out, null);
-                    sandwich.addTopping(topping, false);
+                    sandwich.addTopping(topping.get(), false);
                     if (extra)
-                        sandwich.addTopping(topping, true);
+                        sandwich.addTopping(topping.get(), true);
                 }
                 case 3 -> {
                     out.println("Which topping do you want to remove?");
-                    var topping = queryListCommand(scanner, out, sandwich.getToppings(),
+                    var topping = queryListCommandOrCancel(scanner, out, sandwich.getToppings(),
                         tv -> "%s%s".formatted(tv.isExtra() ? "Extra " : "", tv.getType().getName()));
-                    if (topping == null)
+                    if (topping == null || topping.isEmpty())
                         continue;
-                    sandwich.removeTopping(topping.getType(), topping.isExtra());
-                    if (!topping.isExtra() && sandwich.getToppings().stream().anyMatch(tp -> tp.getType() == topping.getType() && tp.isExtra()))
-                        sandwich.removeTopping(topping.getType(), true);
+                    sandwich.removeTopping(topping.get().getType(), topping.get().isExtra());
+                    if (!topping.get().isExtra() && sandwich.getToppings().stream().anyMatch(tp -> tp.getType() == topping.get().getType() && tp.isExtra()))
+                        sandwich.removeTopping(topping.get().getType(), true);
                 }
                 case 4 -> {
                     var bread = queryBreadType(scanner, out);
