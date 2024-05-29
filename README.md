@@ -28,6 +28,10 @@ Follow these steps to get your application running within IntelliJ IDEA:
 - [Java 17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
 - [IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
 
+# User Stories
+
+See the project board [here](https://github.com/users/Benjamin-Bergman/projects/3).
+
 # Class Diagram
 
 ![image](https://github.com/Benjamin-Bergman/DelicatCafe/assets/166551442/c6095672-9269-418e-9bfe-b40cda8a67d6)
