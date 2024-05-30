@@ -84,7 +84,7 @@ public final class SandwichShop {
     private static <T> T queryListCommand(Scanner scanner,
                                           PrintStream out,
                                           List<? extends T> options,
-                                          Function<? super T, String> displaySelector) {
+                                          Function<? super T, ? extends CharSequence> displaySelector) {
         if (options.isEmpty()) {
             out.println("Nothing to choose");
             return null;
@@ -106,7 +106,7 @@ public final class SandwichShop {
     private static <T> Optional<? extends T> queryListCommandOrCancel(Scanner scanner,
                                                                       PrintStream out,
                                                                       Collection<? extends T> options,
-                                                                      Function<? super T, String> displaySelector) {
+                                                                      Function<? super T, ? extends CharSequence> displaySelector) {
         return queryListCommand(scanner, out,
             Stream.concat(
                 options.stream().map(Optional::of),
