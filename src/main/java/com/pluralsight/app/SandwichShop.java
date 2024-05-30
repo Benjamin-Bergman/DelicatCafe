@@ -97,30 +97,22 @@ public final class SandwichShop {
         return options.get(choice - 1);
     }
 
-    private static <T> Optional<T> queryListCommandOrCancel(Scanner scanner,
-                                                            PrintStream out,
-                                                            List<? extends T> options) {
+    private static <T> Optional<? extends T> queryListCommandOrCancel(Scanner scanner,
+                                                                      PrintStream out,
+                                                                      Collection<? extends T> options) {
         return queryListCommandOrCancel(scanner, out, options, Objects::toString);
     }
 
-    private static <T> Optional<T> queryListCommandOrCancel(Scanner scanner,
-                                                            PrintStream out,
-                                                            List<? extends T> options,
-                                                            Function<? super T, String> displaySelector) {
-        if (options.isEmpty()) {
-            out.println("Nothing to choose");
-            //noinspection OptionalAssignedToNull
-            return null;
-        }
-
-        for (//noinspection ReassignedVariable
-            int i = 0; i < options.size(); i++)
-            out.printf("%d - %s%n", i + 1, displaySelector.apply(options.get(i)));
-        out.printf("%d - Cancel", options.size() + 1);
-        int choice = queryCommand(scanner, out, IntStream.rangeClosed(1, options.size() + 1).boxed().toList());
-        if (choice == options.size() + 1)
-            return Optional.empty();
-        return Optional.of(options.get(choice - 1));
+    private static <T> Optional<? extends T> queryListCommandOrCancel(Scanner scanner,
+                                                                      PrintStream out,
+                                                                      Collection<? extends T> options,
+                                                                      Function<? super T, String> displaySelector) {
+        return queryListCommand(scanner, out,
+            Stream.concat(
+                options.stream().map(Optional::of),
+                Stream.of(Optional.<T>empty())
+            ).toList(),
+            op -> op.isEmpty() ? "Cancel" : displaySelector.apply(op.get()));
     }
 
     @SuppressWarnings({"MethodWithMoreThanThreeNegations", "BooleanMethodNameMustStartWithQuestion"})
@@ -206,7 +198,8 @@ public final class SandwichShop {
     @SuppressWarnings("FeatureEnvy")
     private Optional<DrinkType> queryDrinkType(Scanner scanner, PrintStream out) {
         out.println("Enter the drink type:");
-        return queryListCommandOrCancel(scanner, out, drinks.getItems(),
+        //noinspection unchecked
+        return (Optional<DrinkType>) queryListCommandOrCancel(scanner, out, drinks.getItems(),
             dt -> "%s ($%.2fL, $%.2fM, $%.2fS)".formatted(
                 dt.getName(),
                 dt.getPrice(DrinkSize.LARGE),
@@ -217,7 +210,8 @@ public final class SandwichShop {
 
     private Optional<ExtraType> queryExtra(Scanner scanner, PrintStream out) {
         out.println("Enter the item:");
-        return queryListCommandOrCancel(scanner, out, extras.getItems(),
+        //noinspection unchecked
+        return (Optional<ExtraType>) queryListCommandOrCancel(scanner, out, extras.getItems(),
             et -> "%s ($%.2f)".formatted(et.getName(), et.getPrice()));
     }
 
