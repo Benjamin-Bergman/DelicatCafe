@@ -27,6 +27,7 @@ Follow these steps to get your application running within IntelliJ IDEA:
 
 - [Java 17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
 - [IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
+- [PlantUML](https://plantuml.com/)
 
 # User Stories
 
